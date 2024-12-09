@@ -13,6 +13,7 @@ Your goal is to build a feature-rich prototype of JeanTest that allows to:
 - Manage existing invoices
   - Move them from drafts to finalized invoices
   - Mark them as paid
+  - Update them
   - Delete them
 
 You'll be leveraging an existing REST HTTP API hosted at `https://jean-test-api.herokuapp.com/`.
@@ -25,13 +26,13 @@ JeanTest should contain essential features listed above & be coded in a way that
 
 We expect you to adopt standard coding practices, including testing, as if you were working on a real-world application with other coworkers.
 
-We want you to **build JeanTest from existing UI components provided in `src/ui`** by [Tamagui](https://tamagui.dev/ui/intro?subpath=intro) in order to focus on composing screens & features.
+We want you to **build JeanTest from existing UI components provided in `src/ui`** by [Tamagui](https://tamagui.dev/ui/intro?subpath=intro) in order to focus on composing screens & features. Feel free to add new ones but keep in mind that it won't be taken into account.
 
 We encourage you to use pre-installed dependencies or add new ones if you have a legitimate use of them.
 
 ### The interview
 
-In order to prepare the interview, please take the time to identify advanced features that could be added in the future.
+In order to prepare the interview, please take the time to identify advanced features that could be added in the future (even if the API currently does not support it!).
 
 For each feature/tech improvement, we want to understand:
 
