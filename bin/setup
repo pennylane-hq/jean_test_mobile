@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -euo pipefail
+
+function cleanup() {
+  for job in $(jobs -p); do
+    kill -9 "$job"
+  done
+}
+
+trap cleanup SIGHUP SIGINT SIGTERM
+
+(
+  bundle install
+  yarn install
+  cd ios
+  RCT_NEW_ARCH_ENABLED=1 bundle exec pod install
+  cd ..
+  yarn openapi:gen
+) &
+
+wait

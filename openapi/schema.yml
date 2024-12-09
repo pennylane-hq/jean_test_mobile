@@ -303,7 +303,7 @@ components:
           example: 9 impasse Sauvey
         zip_code:
           type: string
-          example: "50100"
+          example: '50100'
         city:
           type: string
           example: Cherbourg
@@ -346,10 +346,10 @@ components:
           $ref: '#/components/schemas/vat_rate'
         price:
           type: string
-          example: "1s20.00"
+          example: '1s20.00'
         tax:
           type: string
-          example: "20.00"
+          example: '20.00'
         product:
           $ref: '#/components/schemas/Product'
       required:
@@ -381,19 +381,19 @@ components:
           example: true
         date:
           type: string
-          example: "2021-02-03"
+          example: '2021-02-03'
           nullable: true
         deadline:
           type: string
-          example: "2021-03-05"
+          example: '2021-03-05'
           nullable: true
         total:
           type: string
-          example: "120.00"
+          example: '120.00'
           nullable: true
         tax:
           type: string
-          example: "20.00"
+          example: '20.00'
           nullable: true
         invoice_lines:
           type: array
@@ -440,12 +440,12 @@ components:
           oneOf:
             - type: string
             - type: number
-          example: "120.00"
+          example: '120.00'
         tax:
           oneOf:
             - type: string
             - type: number
-          example: "20.00"
+          example: '20.00'
     InvoiceLineCreatePayload:
       type: object
       properties:
@@ -466,12 +466,12 @@ components:
           oneOf:
             - type: string
             - type: number
-          example: "120.00"
+          example: '120.00'
         tax:
           oneOf:
             - type: string
             - type: number
-          example: "20.00"
+          example: '20.00'
       required:
         - product_id
     InvoiceUpdatePayload:
@@ -491,11 +491,11 @@ components:
           example: true
         date:
           type: string
-          example: "2021-02-03"
+          example: '2021-02-03'
           nullable: true
         deadline:
           type: string
-          example: "2021-03-05"
+          example: '2021-03-05'
           nullable: true
         invoice_lines_attributes:
           type: array
@@ -517,11 +517,11 @@ components:
           example: true
         date:
           type: string
-          example: "2021-02-03"
+          example: '2021-02-03'
           nullable: true
         deadline:
           type: string
-          example: "2021-03-05"
+          example: '2021-03-05'
           nullable: true
         invoice_lines_attributes:
           type: array

@@ -1,14 +1,20 @@
 module.exports = {
   root: true,
-  env: {
-    browser: true,
-    es2021: true,
-    jest: true,
-    node: true,
-    'react-native/react-native': true,
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'standard',
+    'standard-react',
+    'plugin:eslint-comments/recommended',
+    'prettier',
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 12,
+    sourceType: 'module',
   },
-  extends: ['@react-native', 'prettier'],
-  rules: {
-    'react/react-in-jsx-scope': 'off',
-  },
+  plugins: ['react', 'react-native'],
 }
