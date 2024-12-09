@@ -1,23 +1,19 @@
-import React, { StyleSheet, Text, View } from 'react-native'
+import { Heading, YStack, Text } from 'ui'
 
-const Dummy = () => {
+export const Dummy = () => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>JeanTest</Text>
-    </View>
+    <YStack
+      flex={1}
+      alignItems="center"
+      justifyContent="center"
+      gap="$2"
+      paddingHorizontal="$4"
+    >
+      <Heading textAlign="center">Welcome to JeanTest 👋</Heading>
+
+      <Text textAlign="center">
+        JeanTest is an invoicing app that allows managing & creating invoices.
+      </Text>
+    </YStack>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-})
-
-export default Dummy

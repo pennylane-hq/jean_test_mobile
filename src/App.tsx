@@ -1,13 +1,19 @@
-import React from 'react'
+import { UIProvider } from 'ui/config'
+import { ApiProvider } from 'api'
+import { Dummy } from './Dummy'
 
-import Config from 'react-native-config'
-import { ApiProvider } from './api'
-import Dummy from './Dummy'
+/**
+ * API token to authenticate requests
+ * provided by email.
+ */
+const API_TOKEN = ''
 
 const App = () => {
   return (
-    <ApiProvider url={String(Config.API_URL)} token={String(Config.API_TOKEN)}>
-      <Dummy />
+    <ApiProvider url="https://jean-test-api.herokuapp.com/" token={API_TOKEN}>
+      <UIProvider>
+        <Dummy />
+      </UIProvider>
     </ApiProvider>
   )
 }
