@@ -44,7 +44,7 @@ For each feature/tech improvement, we want to understand:
 
 To submit your code, create a private GitHub repository with your application's source code.
 
-Invite the following GitHub users to it: @adrien-pennylane, @keShraa @Lecsar @michaelvitello
+Invite the following GitHub users to it: @adrien-pennylane @keShraa @Lecsar @michaelvitello
 
 ## Getting started
 
