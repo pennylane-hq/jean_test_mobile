@@ -2,6 +2,7 @@ import React, { ReactNode, createContext, useContext, useRef } from 'react'
 import OpenAPIClientAxios from 'openapi-client-axios'
 import { Client } from './generated/client'
 import definition from './generated/schema.json'
+import { getQueryString } from './utils'
 
 interface ApiContextState {
   client: Client | undefined
@@ -31,6 +32,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({
         headers: {
           'X-SESSION': token,
         },
+        paramsSerializer: getQueryString,
       },
     }),
   )
