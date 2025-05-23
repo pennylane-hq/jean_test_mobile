@@ -27,6 +27,7 @@
     "react-native-safe-area-context": "5.0.0",
     "react-native-screens": "4.3.0",
     "react-native-svg": "15.10.1",
+    "reactotron-react-native": "5.1.13",
     "tamagui": "1.120.0"
   },
   "devDependencies": {
