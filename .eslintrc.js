@@ -17,4 +17,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react', 'react-native'],
+  rules: {
+    'react/react-in-jsx-scope': 'off',
+  },
 }

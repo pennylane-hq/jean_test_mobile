@@ -68,5 +68,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "resolutions": {
+    "axios": "0.30.0"
   }
 }
