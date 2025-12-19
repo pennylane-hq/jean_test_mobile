@@ -43,7 +43,7 @@ For each feature/tech improvement, we want to understand:
 ### Submit your application
 
 - Create a private GitHub repository for your application code
-- Add these GitHub users to it:
+- Invite these GitHub users:
   - @Lecsar
   - @michaelvitello
   - @EwaGuziejko
@@ -51,7 +51,7 @@ For each feature/tech improvement, we want to understand:
   - @Liinkiing
   <!-- - @adrien-pennylane -->
   <!-- - @keShraa -->
-- Share your repository link through [this form](https://forms.gle/siH7Rezuq2V1mUJGA)
+- Share your repository URL through [this form](https://forms.gle/siH7Rezuq2V1mUJGA)
 
 ## Getting started
 
