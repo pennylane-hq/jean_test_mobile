@@ -49,7 +49,7 @@ For each feature/tech improvement, we want to understand:
   - @EwaGuziejko
   - @greeeg
   - @Liinkiing
-  <!-- - @adrien-pennylane -->
+  - @adrien-pennylane
   <!-- - @keShraa -->
 - Share your repository URL through [this form](https://forms.gle/siH7Rezuq2V1mUJGA)
 
