@@ -1,6 +1,22 @@
-/**
- * Tamagui is a style library for React Native.
- * It provides a set of components to build a consistent UI.
- * https://tamagui.dev/ui/intro?subpath=intro
- */
-export * from 'tamagui'
+export {
+  Button,
+  Checkbox,
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  Heading,
+  Input,
+  Label,
+  Paragraph,
+  Select,
+  Sheet,
+  Switch,
+  Text,
+  TextArea,
+  XStack,
+  YStack,
+  // Add more components as needed
+} from 'tamagui';

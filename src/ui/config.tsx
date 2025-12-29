@@ -1,15 +1,17 @@
-import { config as sourceConfig } from '@tamagui/config/v3'
-import { PropsWithChildren } from 'react'
-import { createTamagui, TamaguiProvider } from 'tamagui'
+import { defaultConfig } from '@tamagui/config/v4';
+import { PropsWithChildren } from 'react';
+import { createTamagui, TamaguiProvider } from 'tamagui';
 
-export const config = createTamagui(sourceConfig)
+export const tamaguiConfig = createTamagui(defaultConfig);
 
-export type Conf = typeof config
+export default tamaguiConfig;
+
+export type Conf = typeof tamaguiConfig;
 
 declare module 'tamagui' {
   interface TamaguiCustomConfig extends Conf {}
 }
 
 export const UIProvider = ({ children }: PropsWithChildren) => {
-  return <TamaguiProvider config={config}>{children}</TamaguiProvider>
-}
+  return <TamaguiProvider config={tamaguiConfig}>{children}</TamaguiProvider>;
+};

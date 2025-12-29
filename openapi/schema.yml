@@ -1,16 +1,16 @@
 openapi: 3.0.3
 info:
   title: Jean Test API
-  description: 'validate me with https://editor.swagger.io/'
+  description: "validate me with https://editor.swagger.io/"
   contact:
     email: thierry@pennylane.tech
   version: 1.0.0
 tags:
   - name: JeanTestAPI
 servers:
-  - url: 'https://jean-test-api.herokuapp.com'
+  - url: "https://jean-test-api.herokuapp.com"
 paths:
-  '/products/search':
+  "/products/search":
     get:
       operationId: getSearchProducts
       summary: Search products
@@ -32,7 +32,7 @@ paths:
           schema:
             type: number
       responses:
-        '200':
+        "200":
           description: the matching products
           content:
             application/json:
@@ -40,15 +40,15 @@ paths:
                 type: object
                 properties:
                   pagination:
-                    $ref: '#/components/schemas/Pagination'
+                    $ref: "#/components/schemas/Pagination"
                   products:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Product'
+                      $ref: "#/components/schemas/Product"
                 required:
                   - pagination
                   - products
-  '/customers/search':
+  "/customers/search":
     get:
       operationId: getSearchCustomers
       summary: Search customers
@@ -70,7 +70,7 @@ paths:
           schema:
             type: number
       responses:
-        '200':
+        "200":
           description: the matching customers
           content:
             application/json:
@@ -78,15 +78,15 @@ paths:
                 type: object
                 properties:
                   pagination:
-                    $ref: '#/components/schemas/Pagination'
+                    $ref: "#/components/schemas/Pagination"
                   customers:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Customer'
+                      $ref: "#/components/schemas/Customer"
                 required:
                   - pagination
                   - customers
-  '/invoices':
+  "/invoices":
     get:
       operationId: getInvoices
       summary: list invoices
@@ -110,7 +110,7 @@ paths:
             type: string
           example: '[{"field":"customer_id","operator":"eq","value":5}]'
       responses:
-        '200':
+        "200":
           description: the matching invoices
           content:
             application/json:
@@ -118,18 +118,18 @@ paths:
                 type: object
                 properties:
                   pagination:
-                    $ref: '#/components/schemas/Pagination'
+                    $ref: "#/components/schemas/Pagination"
                   invoices:
                     type: array
                     items:
                       allOf:
                         - type: object
-                          $ref: '#/components/schemas/Invoice'
+                          $ref: "#/components/schemas/Invoice"
                         - type: object
                           properties:
                             customer:
                               type: object
-                              $ref: '#/components/schemas/Customer'
+                              $ref: "#/components/schemas/Customer"
                 required:
                   - pagination
                   - invoices
@@ -148,15 +148,15 @@ paths:
               type: object
               properties:
                 invoice:
-                  $ref: '#/components/schemas/InvoiceCreatePayload'
+                  $ref: "#/components/schemas/InvoiceCreatePayload"
       responses:
-        '200':
+        "200":
           description: the created invoice
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invoice'
-  '/invoices/{id}':
+                $ref: "#/components/schemas/Invoice"
+  "/invoices/{id}":
     put:
       operationId: putInvoice
       summary: update an invoice
@@ -177,14 +177,14 @@ paths:
               type: object
               properties:
                 invoice:
-                  $ref: '#/components/schemas/InvoiceUpdatePayload'
+                  $ref: "#/components/schemas/InvoiceUpdatePayload"
       responses:
-        '200':
+        "200":
           description: the modified invoice
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invoice'
+                $ref: "#/components/schemas/Invoice"
     get:
       operationId: getInvoice
       summary: get an invoice
@@ -199,12 +199,12 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: returns the matching invoice
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invoice'
+                $ref: "#/components/schemas/Invoice"
     delete:
       operationId: deleteInvoice
       summary: delete an invoice
@@ -219,7 +219,7 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: (empty) invoice has been deleted
 components:
   schemas:
@@ -252,10 +252,10 @@ components:
         - total_entries
     unit:
       type: string
-      enum: ['hour', 'day', 'piece']
+      enum: ["hour", "day", "piece"]
     vat_rate:
       type: string
-      enum: ['0', '5.5', '10', '20']
+      enum: ["0", "5.5", "10", "20"]
     Product:
       type: object
       properties:
@@ -266,9 +266,9 @@ components:
           type: string
           example: Tesla Model S
         vat_rate:
-          $ref: '#/components/schemas/vat_rate'
+          $ref: "#/components/schemas/vat_rate"
         unit:
-          $ref: '#/components/schemas/unit'
+          $ref: "#/components/schemas/unit"
         unit_price:
           type: string
           example: 1980.00
@@ -303,7 +303,7 @@ components:
           example: 9 impasse Sauvey
         zip_code:
           type: string
-          example: '50100'
+          example: "50100"
         city:
           type: string
           example: Cherbourg
@@ -341,17 +341,17 @@ components:
           type: string
           example: Tesla Model S with Pennylane logo
         unit:
-          $ref: '#/components/schemas/unit'
+          $ref: "#/components/schemas/unit"
         vat_rate:
-          $ref: '#/components/schemas/vat_rate'
+          $ref: "#/components/schemas/vat_rate"
         price:
           type: string
-          example: '1s20.00'
+          example: "1s20.00"
         tax:
           type: string
-          example: '20.00'
+          example: "20.00"
         product:
-          $ref: '#/components/schemas/Product'
+          $ref: "#/components/schemas/Product"
       required:
         - id
         - invoice_id
@@ -381,24 +381,24 @@ components:
           example: true
         date:
           type: string
-          example: '2021-02-03'
+          example: "2021-02-03"
           nullable: true
         deadline:
           type: string
-          example: '2021-03-05'
+          example: "2021-03-05"
           nullable: true
         total:
           type: string
-          example: '120.00'
+          example: "120.00"
           nullable: true
         tax:
           type: string
-          example: '20.00'
+          example: "20.00"
           nullable: true
         invoice_lines:
           type: array
           items:
-            $ref: '#/components/schemas/InvoiceLine'
+            $ref: "#/components/schemas/InvoiceLine"
       required:
         - id
         - customer_id
@@ -433,19 +433,19 @@ components:
           type: string
           example: Tesla Model S with Pennylane logo
         unit:
-          $ref: '#/components/schemas/unit'
+          $ref: "#/components/schemas/unit"
         vat_rate:
-          $ref: '#/components/schemas/vat_rate'
+          $ref: "#/components/schemas/vat_rate"
         price:
           oneOf:
             - type: string
             - type: number
-          example: '120.00'
+          example: "120.00"
         tax:
           oneOf:
             - type: string
             - type: number
-          example: '20.00'
+          example: "20.00"
     InvoiceLineCreatePayload:
       type: object
       properties:
@@ -459,19 +459,19 @@ components:
           type: string
           example: Tesla Model S with Pennylane logo
         unit:
-          $ref: '#/components/schemas/unit'
+          $ref: "#/components/schemas/unit"
         vat_rate:
-          $ref: '#/components/schemas/vat_rate'
+          $ref: "#/components/schemas/vat_rate"
         price:
           oneOf:
             - type: string
             - type: number
-          example: '120.00'
+          example: "120.00"
         tax:
           oneOf:
             - type: string
             - type: number
-          example: '20.00'
+          example: "20.00"
       required:
         - product_id
     InvoiceUpdatePayload:
@@ -491,16 +491,16 @@ components:
           example: true
         date:
           type: string
-          example: '2021-02-03'
+          example: "2021-02-03"
           nullable: true
         deadline:
           type: string
-          example: '2021-03-05'
+          example: "2021-03-05"
           nullable: true
         invoice_lines_attributes:
           type: array
           items:
-            $ref: '#/components/schemas/InvoiceLineUpdatePayload'
+            $ref: "#/components/schemas/InvoiceLineUpdatePayload"
       required:
         - id
     InvoiceCreatePayload:
@@ -517,15 +517,15 @@ components:
           example: true
         date:
           type: string
-          example: '2021-02-03'
+          example: "2021-02-03"
           nullable: true
         deadline:
           type: string
-          example: '2021-03-05'
+          example: "2021-03-05"
           nullable: true
         invoice_lines_attributes:
           type: array
           items:
-            $ref: '#/components/schemas/InvoiceLineCreatePayload'
+            $ref: "#/components/schemas/InvoiceLineCreatePayload"
       required:
         - customer_id

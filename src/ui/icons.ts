@@ -1,1 +1,1 @@
-export * from '@tamagui/lucide-icons'
+export * from '@tamagui/lucide-icons';
