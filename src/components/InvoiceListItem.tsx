@@ -3,11 +3,12 @@ import { Text } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ExtendedInvoice, NavigationParams, UserFriendlyInvoiceStatuses } from '../types';
 
-type ListItemProps = {
+type InvoiceListItemProps = {
   invoice: ExtendedInvoice;
+  onPress?: () => void;
 };
 
-export const ListItem = ({ invoice }: ListItemProps) => {
+export const InvoiceListItem = ({ invoice, onPress }: InvoiceListItemProps) => {
   const { navigate } = useNavigation<NavigationProp<NavigationParams>>();
 
   const userFriendlyInvoiceStatus = invoice.paid
@@ -17,13 +18,14 @@ export const ListItem = ({ invoice }: ListItemProps) => {
   return (
     <XStack
       gap="$1"
+      bg="$color2"
+      justify="space-between"
+      p="$4"
       style={{
-        justifyContent: 'space-between',
         width: '100%',
-        backgroundColor: 'pink',
-        padding: 16,
         borderRadius: 8,
-      }}>
+      }}
+      onPress={onPress}>
       <YStack gap="$4" style={{ justifyContent: 'center' }}>
         <Text>{invoice?.id}</Text>
         <Text>{userFriendlyInvoiceStatus}</Text>
@@ -33,7 +35,7 @@ export const ListItem = ({ invoice }: ListItemProps) => {
         <Text>
           {invoice?.customer?.first_name} {invoice?.customer?.last_name}
         </Text>
-        <Text>{invoice.total}</Text>
+        <Text>{invoice.total} CUR</Text>
       </YStack>
     </XStack>
   );

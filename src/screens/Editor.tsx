@@ -1,10 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../api';
-import { Button, Input, Label, YStack, Text } from '../ui';
+import { Button, YStack, Text } from '../ui';
 import { Components, Paths } from '../api/generated/client';
 import { Controller, useForm } from 'react-hook-form';
-import { useState } from 'react';
-import { InvoiceLineFormSheet } from '../components/InvoiceAttributeFormSheet';
+import React, { useState } from 'react';
+import { InvoiceLineListItem } from '../components/InvoiceLineListItem';
+import { ContentSection } from '../components/ContentSection';
+import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NavigationParams } from '../types';
+import { InputField } from '../components/InputField';
+import { Separator } from 'tamagui';
+import { Layout } from '../components/Layout';
+import { CustomerSearchSheet } from '../components/CustomerSearchSheet';
+import { CustomerListItem } from '../components/CustomerListItem';
+import { ProductSearchSheet } from '../components/ProductSearchSheet';
+import { ScrollView } from 'react-native-gesture-handler';
+import { calculateTotal, checkNumber } from '../helpers';
+import { RootStackParamList } from '../App';
 
 type InvoiceForm = {
   customer: string;
@@ -13,12 +25,37 @@ type InvoiceForm = {
   tax: string;
 };
 
+// product_id: number;
+// quantity?: number;
+// label?: string;
+// unit?: Unit;
+// vat_rate?: VatRate;
+// price?: string | number;
+// tax?: string | number;
+
+//Note: add preview option
+
+type EditorRouteParams = RouteProp<RootStackParamList, 'Editor'>;
+
 export const EditorScreen = () => {
   const api = useApi();
+  const { params } = useRoute<EditorRouteParams>();
+
+  const { navigate } = useNavigation<NavigationProp<NavigationParams>>();
   const queryClient = useQueryClient();
-  const [deadlineVal, setDeadlineVal] = useState('');
-  const [attributes, setAttributes] = useState<Components.Schemas.InvoiceLine[]>([]);
+
+  const [deadlineVal, setDeadlineVal] = useState(params?.invoice ? params?.invoice?.deadline : '');
+  const [invoiceLines, setInvoiceLines] = useState<Components.Schemas.InvoiceLineCreatePayload[]>(
+    params?.invoice ? params?.invoice?.invoice_lines : [],
+  );
+
+  console.log('params', params);
+
+  const [selectedCustomer, setSelectedCustomer] = useState<Components.Schemas.Customer>();
+
   const [isInvoiceLineModalOpened, setIsInvoiceLineModalOpened] = useState(false);
+  const [isCustomerSearchModalOpened, setIsCustomerSearchModalOpened] = useState(false);
+  const [isProductSearchModalOpened, setisProductSearchModalOpened] = useState(false);
 
   const {
     control,
@@ -26,10 +63,10 @@ export const EditorScreen = () => {
     formState: { errors },
   } = useForm<InvoiceForm>({
     defaultValues: {
-      customer: '',
-      date: '',
-      deadline: '',
-      tax: '',
+      customer: params?.invoice?.customer_id ? params.invoice.customer_id : 0,
+      date: params?.invoice?.date ? params.invoice.date : '',
+      deadline: params?.invoice?.deadline ? params.invoice.deadline : '',
+      tax: params?.invoice?.tax ? params.invoice.tax : '',
     },
   });
 
@@ -72,10 +109,18 @@ export const EditorScreen = () => {
     });
   };
 
-  const getTotalSum = () => {
-    //TODO
-    return 0;
+  const getTotalSumOfAllInvoiceLines = () => {
+    let totalPrice = 0;
+    let totalTax = 0;
+    invoiceLines?.length &&
+      invoiceLines.map((line) => {
+        const { sum, tax } = calculateTotal(line);
+        totalPrice += sum;
+        totalTax += tax;
+      });
+    return { totalPrice, totalTax };
   };
+  const { totalPrice, totalTax } = getTotalSumOfAllInvoiceLines();
 
   const toggleModal = () => {
     if (isInvoiceLineModalOpened) setIsInvoiceLineModalOpened(false);
@@ -84,63 +129,93 @@ export const EditorScreen = () => {
     }
   };
 
-  const pushInvoiceLine = (attribute: Components.Schemas.InvoiceLine) => {
-    setAttributes((prev) => [...prev, attribute]);
+  const toggleCustomerSearchModal = () => {
+    if (isCustomerSearchModalOpened) setIsCustomerSearchModalOpened(false);
+    else {
+      setIsCustomerSearchModalOpened(true);
+    }
   };
 
+  const toggleProductSearchModal = () => {
+    if (isProductSearchModalOpened) setisProductSearchModalOpened(false);
+    else {
+      setisProductSearchModalOpened(true);
+    }
+  };
+
+  const addInvoiceLine = (invoiceLine: Components.Schemas.InvoiceLineCreatePayload) => {
+    setInvoiceLines((prev) => [...prev, invoiceLine]);
+  };
+
+  const handleSelectCustomer = (i: Components.Schemas.Customer) => {
+    console.log('trigged,', i);
+    setSelectedCustomer(i);
+  };
   return (
     <>
-      <YStack gap="$4" style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-        {/* Customer */}
-        <YStack gap="$1">
-          <Text>Customer</Text>
-          <Controller
-            control={control}
-            name="customer"
-            rules={{ required: 'Customer is required' }}
-            render={({ field: { value, onChange } }) => (
-              <Input value={value} onChangeText={onChange} placeholder="Customer name" />
-            )}
-          />
-          {errors.customer && <Text color="$red10">{errors.customer.message}</Text>}
-        </YStack>
+      <Layout title="Invoice">
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <YStack gap={'$3'}>
+            {/* TODO Customer */}
+            <ContentSection title="Customer data:">
+              {selectedCustomer ? <CustomerListItem customer={selectedCustomer} /> : null}
+              <Button onPress={toggleCustomerSearchModal} my="$2">
+                Select customer
+              </Button>
+            </ContentSection>
 
-        <Text color="black">Attributes</Text>
-        <YStack gap="$1">
-          {attributes?.map((attribute) => (
-            <YStack key={attribute?.invoice_id}>
-              <Text>{attribute?.label}</Text>
-              <Text>{attribute.price}</Text>
-              <Text>{attribute.quantity}</Text>
-              <Text>{attribute.tax}</Text>
-            </YStack>
-          ))}
-        </YStack>
-        <Button onPress={toggleModal}>Add attribute</Button>
+            <ContentSection title="Invoice Lines:">
+              {invoiceLines?.length ? (
+                <YStack gap="$1">
+                  {invoiceLines?.map((invoiceLine, i) => (
+                    <>
+                      <InvoiceLineListItem {...invoiceLine} />
+                      {invoiceLines?.length &&
+                      invoiceLines.length > 1 &&
+                      invoiceLines.length != i + 1 ? (
+                        <Separator my={15} />
+                      ) : null}
+                    </>
+                  ))}
+                </YStack>
+              ) : null}
 
-        <Text color="black">Provide a due date</Text>
-        {/* Date */}
-        <YStack gap="$1">
-          <Text>Date</Text>
-          <Controller
-            control={control}
-            name="date"
-            rules={{ required: 'Date is required' }}
-            render={({ field: { value, onChange } }) => (
-              <Input value={value} onChangeText={onChange} placeholder="YYYY-MM-DD" />
-            )}
-          />
-          {errors.date && <Text color="$red10">{errors.date.message}</Text>}
-        </YStack>
+              <Button onPress={toggleProductSearchModal} my="$2">
+                Add attribute
+              </Button>
+            </ContentSection>
 
-        <Label>TAX</Label>
-        <Label> Total Sum: {getTotalSum()}</Label>
-        <Button onPress={sendInvoiceData}>Create invoice</Button>
-      </YStack>
-      <InvoiceLineFormSheet
-        open={isInvoiceLineModalOpened}
-        toggleModal={toggleModal}
-        setAttribute={setAttributes}
+            <ContentSection title="Provide a due date:">
+              <Controller
+                control={control}
+                name="date"
+                rules={{ required: 'Date is required' }}
+                render={({ field: { value, onChange } }) => (
+                  <InputField value={value} onChangeText={onChange} placeholder="YYYY-MM-DD" />
+                )}
+              />
+              {errors.date && <Text color="$red10">{errors.date.message}</Text>}
+            </ContentSection>
+
+            <ContentSection title="Result:">
+              <Text color="black">Total Sum: {totalPrice} CURR</Text>
+              <Text color="black">Incl VAT and TAX amounts: {totalTax} CURR</Text>
+              <Button onPress={sendInvoiceData} mt="$3">
+                Create invoice
+              </Button>
+            </ContentSection>
+          </YStack>
+        </ScrollView>
+      </Layout>
+      <CustomerSearchSheet
+        open={isCustomerSearchModalOpened}
+        toggleModal={toggleCustomerSearchModal}
+        setCustomer={handleSelectCustomer}
+      />
+      <ProductSearchSheet
+        open={isProductSearchModalOpened}
+        toggleModal={toggleProductSearchModal}
+        setInvoiceLine={addInvoiceLine}
       />
     </>
   );

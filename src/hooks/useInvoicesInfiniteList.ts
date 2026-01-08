@@ -5,7 +5,7 @@ import { ExtendedInvoice } from '../types';
 
 const PAGE_SIZE = 2;
 
-export function useInvoicesInfinite() {
+export function useInvoicesInfinite(filter?: string) {
   const api = useApi();
 
   const query = useInfiniteQuery({
@@ -13,7 +13,7 @@ export function useInvoicesInfinite() {
     initialPageParam: 0,
 
     queryFn: async ({ pageParam }) => {
-      const res = await api.getInvoices({ page: pageParam, per_page: PAGE_SIZE });
+      const res = await api.getInvoices({ page: pageParam, per_page: PAGE_SIZE, filter });
       console.log('page', res?.data);
       return res.data;
     },
@@ -31,5 +31,6 @@ export function useInvoicesInfinite() {
   return {
     ...query,
     invoices,
+    totalEntries: query?.data?.pages?.[0].pagination.total_entries,
   };
 }
