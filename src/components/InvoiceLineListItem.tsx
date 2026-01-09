@@ -1,4 +1,4 @@
-import { YStack, Text, XStack, H6 } from '../ui';
+import { YStack, Text, XStack } from '../ui';
 import { Components } from '../api/generated/client';
 import { calculateTotal } from '../helpers';
 
@@ -9,11 +9,9 @@ export const InvoiceLineListItem = (invoiceLine: Components.Schemas.InvoiceLineC
     return null;
   }
   return (
-    <YStack key={invoiceLine?.label} gap="$2">
-      <H6 color="black">{invoiceLine?.label}</H6>
-      <Text color="black">
-        {invoiceLine.quantity} x {invoiceLine.price} CURR
-      </Text>
+    <YStack key={invoiceLine?.label} gap="$2" bg={'$color2'} p="$4">
+      <Text color="black">Label: {invoiceLine?.label}</Text>
+      <Text color="black">Price: {invoiceLine.price} CURR</Text>
       <Text color="black">Tax amount: {invoiceLine.tax} CURR</Text>
       <Text color="black">Vat Rate: {invoiceLine.vat_rate} %</Text>
       <XStack justify="space-between">

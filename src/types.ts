@@ -1,9 +1,9 @@
-import { Components, Paths } from './api/generated/client';
+import { Paths } from './api/generated/client';
 
-export interface NavigationParams {
+export type NavigationParams = {
   Home: undefined;
-  Editor: undefined;
-}
+  Editor: { invoice?: ExtendedInvoice };
+};
 
 //TODO: ask openapi team to check types, seems like we need to move it as a separate one,
 //so that it could be exported directly out of openapi

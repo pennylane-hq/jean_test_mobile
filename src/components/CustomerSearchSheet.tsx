@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { Components } from '../api/generated/client';
 import { Text, Sheet } from '../ui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme, YStack } from 'tamagui';
+import { Separator, useTheme, YStack } from 'tamagui';
 import { SearchBar } from './SearchBar';
 
 // hooks/useInvoices.ts
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../api';
 import { InfiniteItemsList } from './InfiniteItemsList';
-import { CustomerListItem } from './CustomerListItem';
+import { FoundListItem } from './FoundListItem';
+import { PressableTextItem } from './PressableTextItem';
+import { QUERY_KEYS } from '../constants';
 
 type CustomerSearchSheetType = {
   open: boolean;
@@ -22,7 +24,7 @@ export function useSearchCustomers(query: string | undefined) {
 
   // TODO: can be enhanced using pagination, but since there are only so many customers, skipping it
   return useQuery({
-    queryKey: ['customers', query],
+    queryKey: [QUERY_KEYS.Customers, query],
     queryFn: async () => {
       const res = await api.getSearchCustomers({ query });
       return res.data;
@@ -45,16 +47,28 @@ export const CustomerSearchSheet = ({
     toggleModal();
   };
   return (
-    <Sheet open={open} animation="medium">
+    <Sheet open={open} animation="medium" disableDrag>
       <Sheet.Overlay opacity={40} bg="$shadow4" />
       <Sheet.Frame bg="$background" p="$4">
-        <MaterialIcons name="close" size={30} color={theme.accent1.get()} onPress={toggleModal} />
+        <MaterialIcons
+          name="close"
+          size={30}
+          style={{ alignSelf: 'flex-end' }}
+          color={theme.accent1.get()}
+          onPress={toggleModal}
+        />
+
+        <Separator my="$2" borderColor="transparent" />
+
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
         <InfiniteItemsList
           items={data?.customers}
           renderItem={({ item }) => (
-            <CustomerListItem customer={item} onPress={() => handleSelectCustomer(item)} />
+            <PressableTextItem
+              text={`${item.first_name} ${item.last_name}`}
+              onPress={() => handleSelectCustomer(item)}
+            />
           )}
           isLoading={isLoading}
           hasNextPage={false}

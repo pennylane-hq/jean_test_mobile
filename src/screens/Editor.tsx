@@ -1,132 +1,104 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../api';
-import { Button, YStack, Text } from '../ui';
-import { Components, Paths } from '../api/generated/client';
+import { Alert } from 'react-native';
+import { Button, YStack, Text, Switch } from '../ui';
+import { Components } from '../api/generated/client';
 import { Controller, useForm } from 'react-hook-form';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { InvoiceLineListItem } from '../components/InvoiceLineListItem';
 import { ContentSection } from '../components/ContentSection';
 import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { NavigationParams } from '../types';
 import { InputField } from '../components/InputField';
-import { Separator } from 'tamagui';
 import { Layout } from '../components/Layout';
 import { CustomerSearchSheet } from '../components/CustomerSearchSheet';
-import { CustomerListItem } from '../components/CustomerListItem';
 import { ProductSearchSheet } from '../components/ProductSearchSheet';
 import { ScrollView } from 'react-native-gesture-handler';
-import { calculateTotal, checkNumber } from '../helpers';
-import { RootStackParamList } from '../App';
+import { SIMPLE_DATES_VALIDATION_RULES } from '../helpers';
+import { InvoiceResultPriceSection } from '../components/InvoiceResultPriceSection';
+import { NavigationParams } from '../types';
+import { SelectedItemWithButton } from '../components/SectedItemWithButton';
+import { useInvoiceAPI } from '../hooks/useInvoice';
 
-type InvoiceForm = {
-  customer: string;
-  date: string;
-  deadline: string;
-  tax: string;
-};
+//NOTE: a preview option can be added
 
-// product_id: number;
-// quantity?: number;
-// label?: string;
-// unit?: Unit;
-// vat_rate?: VatRate;
-// price?: string | number;
-// tax?: string | number;
-
-//Note: add preview option
-
-type EditorRouteParams = RouteProp<RootStackParamList, 'Editor'>;
+type EditorRouteParams = RouteProp<NavigationParams, 'Editor'>;
 
 export const EditorScreen = () => {
-  const api = useApi();
+  const { canGoBack, goBack } = useNavigation<NavigationProp<NavigationParams>>();
   const { params } = useRoute<EditorRouteParams>();
+  const isEditable = !!params?.invoice && !params.invoice.finalized;
+  const isCreationFlow = !params?.invoice?.id;
 
-  const { navigate } = useNavigation<NavigationProp<NavigationParams>>();
-  const queryClient = useQueryClient();
-
-  const [deadlineVal, setDeadlineVal] = useState(params?.invoice ? params?.invoice?.deadline : '');
   const [invoiceLines, setInvoiceLines] = useState<Components.Schemas.InvoiceLineCreatePayload[]>(
     params?.invoice ? params?.invoice?.invoice_lines : [],
   );
+  const [selectedCustomer, setSelectedCustomer] = useState<Components.Schemas.Customer | undefined>(
+    params?.invoice?.customer,
+  );
 
-  console.log('params', params);
-
-  const [selectedCustomer, setSelectedCustomer] = useState<Components.Schemas.Customer>();
-
-  const [isInvoiceLineModalOpened, setIsInvoiceLineModalOpened] = useState(false);
   const [isCustomerSearchModalOpened, setIsCustomerSearchModalOpened] = useState(false);
   const [isProductSearchModalOpened, setisProductSearchModalOpened] = useState(false);
+
+  const { createInvoiceMutation, patchInvoiceMutation, deleteInvoiceMutation } = useInvoiceAPI(
+    () => {
+      canGoBack() && goBack();
+    },
+  );
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<InvoiceForm>({
+    setValue,
+  } = useForm<Components.Schemas.InvoiceCreatePayload>({
     defaultValues: {
-      customer: params?.invoice?.customer_id ? params.invoice.customer_id : 0,
+      customer_id: params?.invoice?.customer?.id,
       date: params?.invoice?.date ? params.invoice.date : '',
       deadline: params?.invoice?.deadline ? params.invoice.deadline : '',
-      tax: params?.invoice?.tax ? params.invoice.tax : '',
+      invoice_lines_attributes: invoiceLines,
+      finalized: params?.invoice?.finalized, //TODO: get back to it
+      paid: params?.invoice?.paid, // TODO: check it
     },
   });
 
-  const onCreateInvoice = useMutation({
-    mutationFn: (data: Paths.PostInvoices.RequestBody) =>
-      api.postInvoices(null, data).then((r) => r.data),
+  useEffect(() => {
+    setValue('invoice_lines_attributes', invoiceLines);
+  }, [invoiceLines]);
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: 'queryKeys.invoices.all',
-      });
-    },
-  });
+  useEffect(() => {
+    if (selectedCustomer?.id) {
+      setValue('customer_id', selectedCustomer.id);
+    }
+  }, [selectedCustomer]);
 
-  const sendInvoiceData = () => {
-    onCreateInvoice.mutate({
-      invoice: {
-        customer_id: 6773,
-        finalized: false,
-        paid: true,
-        date: '2021-02-03',
-        deadline: '2021-03-05',
-        invoice_lines_attributes: [
-          {
-            product_id: 67,
-            quantity: 1,
-            label: 'Tesla Model S with Pennylane logo',
-            price: 120,
-            tax: 20,
-          },
-          {
-            product_id: 12,
-            quantity: 2,
-            label: 'Service fee',
-            price: '300.00',
-            tax: '60.00',
-          },
-        ],
-      },
+  const onSubmitNew = (form: Components.Schemas.InvoiceCreatePayload) => {
+    if (!selectedCustomer) {
+      Alert.alert('Missing customer', 'Please select a customer before saving the invoice');
+      return;
+    }
+    createInvoiceMutation.mutate({
+      invoice: form,
     });
   };
 
-  const getTotalSumOfAllInvoiceLines = () => {
-    let totalPrice = 0;
-    let totalTax = 0;
-    invoiceLines?.length &&
-      invoiceLines.map((line) => {
-        const { sum, tax } = calculateTotal(line);
-        totalPrice += sum;
-        totalTax += tax;
-      });
-    return { totalPrice, totalTax };
-  };
-  const { totalPrice, totalTax } = getTotalSumOfAllInvoiceLines();
-
-  const toggleModal = () => {
-    if (isInvoiceLineModalOpened) setIsInvoiceLineModalOpened(false);
-    else {
-      setIsInvoiceLineModalOpened(true);
+  const onSubmitUpdate = (form: Components.Schemas.InvoiceCreatePayload) => {
+    if (!selectedCustomer) {
+      Alert.alert('Missing customer', 'Please select a customer before saving the invoice');
+      return;
     }
+    if (!params?.invoice?.id) {
+      Alert.alert('Missing invoice identifier', 'Please check whether invoice exists');
+      return;
+    }
+    patchInvoiceMutation.mutate({
+      invoice: { ...form, id: params.invoice.id },
+    });
+  };
+
+  const onSubmitDelete = (form: Components.Schemas.InvoiceCreatePayload) => {
+    if (!params?.invoice?.id) {
+      Alert.alert('Missing invoice identifier', 'Please check whether invoice exists');
+      return;
+    }
+    deleteInvoiceMutation.mutate(params.invoice.id);
   };
 
   const toggleCustomerSearchModal = () => {
@@ -147,70 +119,132 @@ export const EditorScreen = () => {
     setInvoiceLines((prev) => [...prev, invoiceLine]);
   };
 
-  const handleSelectCustomer = (i: Components.Schemas.Customer) => {
-    console.log('trigged,', i);
-    setSelectedCustomer(i);
+  const getAddAttributeCTA = () => {
+    return isCreationFlow || isEditable ? (
+      <Button onPress={toggleProductSearchModal} my="$2">
+        Add attribute
+      </Button>
+    ) : null;
   };
+
+  const getSubmitCTA = () => {
+    if (isCreationFlow) {
+      return (
+        <Button onPress={handleSubmit(onSubmitNew)} mt="$3">
+          Create invoice
+        </Button>
+      );
+    } else if (isEditable) {
+      return (
+        <>
+          <Button onPress={handleSubmit(onSubmitUpdate)} mt="$3">
+            Update invoice
+          </Button>
+          <Button onPress={handleSubmit(onSubmitDelete)} bg="$outlineColor">
+            Delete invoice
+          </Button>
+        </>
+      );
+    }
+    return null;
+  };
+
   return (
     <>
       <Layout title="Invoice">
         <ScrollView showsVerticalScrollIndicator={false}>
-          <YStack gap={'$3'}>
-            {/* TODO Customer */}
+          <YStack gap="$3">
             <ContentSection title="Customer data:">
-              {selectedCustomer ? <CustomerListItem customer={selectedCustomer} /> : null}
-              <Button onPress={toggleCustomerSearchModal} my="$2">
-                Select customer
-              </Button>
+              <SelectedItemWithButton
+                selectBtnTitle="Select customer"
+                selectedItemSubtitle={
+                  selectedCustomer
+                    ? selectedCustomer.first_name + selectedCustomer.last_name
+                    : undefined
+                }
+                selectedItemTitle="Selected customer"
+                isEditable={isCreationFlow || isEditable}
+                onSelect={toggleCustomerSearchModal}
+              />
             </ContentSection>
 
             <ContentSection title="Invoice Lines:">
               {invoiceLines?.length ? (
                 <YStack gap="$1">
                   {invoiceLines?.map((invoiceLine, i) => (
-                    <>
-                      <InvoiceLineListItem {...invoiceLine} />
-                      {invoiceLines?.length &&
-                      invoiceLines.length > 1 &&
-                      invoiceLines.length != i + 1 ? (
-                        <Separator my={15} />
-                      ) : null}
-                    </>
+                    <InvoiceLineListItem {...invoiceLine} key={invoiceLine?.product_id || 0 + i} />
                   ))}
                 </YStack>
               ) : null}
-
-              <Button onPress={toggleProductSearchModal} my="$2">
-                Add attribute
-              </Button>
             </ContentSection>
 
-            <ContentSection title="Provide a due date:">
+            {getAddAttributeCTA()}
+
+            <ContentSection title="Provide a date of issue:">
               <Controller
                 control={control}
                 name="date"
-                rules={{ required: 'Date is required' }}
+                rules={SIMPLE_DATES_VALIDATION_RULES}
                 render={({ field: { value, onChange } }) => (
-                  <InputField value={value} onChangeText={onChange} placeholder="YYYY-MM-DD" />
+                  <InputField
+                    value={value ? value : undefined}
+                    onChangeText={onChange}
+                    placeholder="YYYY-MM-DD"
+                  />
                 )}
               />
               {errors.date && <Text color="$red10">{errors.date.message}</Text>}
             </ContentSection>
 
-            <ContentSection title="Result:">
-              <Text color="black">Total Sum: {totalPrice} CURR</Text>
-              <Text color="black">Incl VAT and TAX amounts: {totalTax} CURR</Text>
-              <Button onPress={sendInvoiceData} mt="$3">
-                Create invoice
-              </Button>
+            <ContentSection title="Provide a due date:">
+              <Controller
+                control={control}
+                name="deadline"
+                rules={SIMPLE_DATES_VALIDATION_RULES}
+                render={({ field: { value, onChange } }) => (
+                  <InputField
+                    value={value ? value : undefined}
+                    onChangeText={onChange}
+                    placeholder="YYYY-MM-DD"
+                  />
+                )}
+              />
+              {errors.date && <Text color="$red10">{errors.date.message}</Text>}
             </ContentSection>
+
+            <InvoiceResultPriceSection invoiceLines={invoiceLines} />
+
+            <ContentSection title="Is finalized?">
+              <Controller
+                control={control}
+                name="finalized"
+                render={({ field }) => (
+                  <Switch size="$3" checked={field.value} onCheckedChange={field.onChange}>
+                    <Switch.Thumb />
+                  </Switch>
+                )}
+              />
+            </ContentSection>
+            <ContentSection title="Is paid?">
+              <Controller
+                control={control}
+                name="paid"
+                render={({ field }) => (
+                  <Switch size="$3" checked={field.value} onCheckedChange={field.onChange}>
+                    <Switch.Thumb />
+                  </Switch>
+                )}
+              />
+            </ContentSection>
+
+            {getSubmitCTA()}
           </YStack>
         </ScrollView>
       </Layout>
       <CustomerSearchSheet
         open={isCustomerSearchModalOpened}
         toggleModal={toggleCustomerSearchModal}
-        setCustomer={handleSelectCustomer}
+        setCustomer={setSelectedCustomer}
       />
       <ProductSearchSheet
         open={isProductSearchModalOpened}

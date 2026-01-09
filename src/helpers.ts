@@ -28,7 +28,11 @@ export const calculateTotal = ({
   vat_rate,
   tax,
   quantity,
-}: Components.Schemas.InvoiceLineCreatePayload) => {
+}: Partial<Components.Schemas.InvoiceLineCreatePayload>) => {
+  if (!price) {
+    return { sum: 0, tax: 0 };
+  }
+
   const vatAmount = percentOf(price || 0, vat_rate || 0);
   const resultedVatAnount = vatAmount || 0;
 
@@ -38,4 +42,45 @@ export const calculateTotal = ({
 
   const totalSum = totalPrice + totalTax;
   return { sum: roundTo4DP(totalSum), tax: totalPrice };
+};
+
+export const calculateTotalTax = ({
+  tax,
+  quantity,
+}: Partial<Components.Schemas.InvoiceLineCreatePayload>) => {
+  const checkedTax = checkNumber(tax);
+  return checkedTax * checkNumber(quantity);
+};
+
+export const calculateVAT = (value: number | undefined, percentage: string | undefined) => {
+  const percentageNumber = checkNumber(percentage);
+
+  //TODO: not sure how to calculate it, assuming taking amount + tax as a base value
+  if (!value || !percentageNumber) {
+    return 0;
+  }
+  return percentOf(value, percentageNumber);
+};
+
+export const SIMPLE_DATE_REGEX_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+export const validateSimpleDate = (value: string | null | undefined) => {
+  if (!value) return 'Due date is required';
+
+  const input = new Date(value);
+  if (isNaN(input.getTime())) return 'Invalid date';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return input >= today || 'Due date cannot be in the past';
+};
+
+export const SIMPLE_DATES_VALIDATION_RULES = {
+  required: 'Due date is required',
+  pattern: {
+    value: SIMPLE_DATE_REGEX_PATTERN,
+    message: 'Use format YYYY-MM-DD',
+  },
+  validate: validateSimpleDate,
 };

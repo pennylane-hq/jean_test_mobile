@@ -26,7 +26,7 @@ export const AppHeader = ({ renderRightItem, shouldGoBack = true, title }: AppHe
       borderBottomWidth={1}
       borderColor="$shadow3">
       <XStack>
-        {(canGoBack() && shouldGoBack) || true ? (
+        {canGoBack() && shouldGoBack ? (
           <MaterialIcons name="arrow-back" size={30} color={theme.accent1.get()} onPress={goBack} />
         ) : null}
         <XStack flex={1} />

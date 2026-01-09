@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { YStack } from 'tamagui';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Components } from './api/generated/client';
-import { ExtendedInvoice } from './types';
+import { ExtendedInvoice, NavigationParams } from './types';
 
 /**
  * API token to authenticate requests
@@ -18,19 +18,17 @@ import { ExtendedInvoice } from './types';
  * Should not remain like that, it's not a public info
  */
 
-export type RootStackParamList = {
-  Home: undefined;
-  Editor: { invoice?: ExtendedInvoice };
-};
-
 const API_TOKEN = process.env.EXPO_PUBLIC_API_TOKEN!;
 const API_URL = process.env.EXPO_PUBLIC_API_URL!;
 
 const queryClient = new QueryClient();
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator();
+
+if (__DEV__) {
+  import('./ReactotronConfig');
+}
 
 export const App = () => {
-  console.log('url', API_URL);
   return (
     <ApiProvider url={API_URL} token={API_TOKEN}>
       <QueryClientProvider client={queryClient}>

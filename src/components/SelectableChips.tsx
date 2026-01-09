@@ -1,12 +1,16 @@
 import { XStack, Button, Text, useTheme } from 'tamagui';
 
-type Props<T> = {
+type Key = {
+  id: string | number;
+};
+
+type Props<T extends Key> = {
   values: T[];
   value: T;
   onChange: (unit: T) => void;
 };
 
-export function SelectableChips<T>({ values, value, onChange }: Props<T>) {
+export function SelectableChips<T extends Key>({ values, value, onChange }: Props<T>) {
   const theme = useTheme();
   return (
     <XStack gap="$2">
@@ -15,11 +19,11 @@ export function SelectableChips<T>({ values, value, onChange }: Props<T>) {
 
         return (
           <Button
-            key={unit}
+            key={unit.id}
             size="$3"
-            borderRadius="$10"
+            style={{ borderRadius: '$10' }}
             borderColor={'$accentColor'}
-            backgroundColor={active ? theme?.accentBackground : theme.background}
+            bg={active ? theme?.accentBackground : theme.background}
             onPress={() => onChange(unit)}>
             <Text>{unit}</Text>
           </Button>

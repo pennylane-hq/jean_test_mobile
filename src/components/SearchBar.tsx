@@ -1,8 +1,7 @@
 import { XStack, Input, Button, useTheme } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { TextInputChangeEvent } from 'react-native';
 
-type SearchBarProps = {
+export type SearchBarProps = {
   value: string;
   onChange: (text: string) => void;
   onClear?: () => void;
@@ -15,7 +14,8 @@ export const SearchBar = ({ value, onChange, onClear }: SearchBarProps) => {
     <XStack
       px="$3"
       py="$2"
-      style={{ borderRadius: 8 }}
+      mb="$2"
+      style={{ borderRadius: 8, alignItems: 'center' }}
       bg="$backgroundHover"
       borderWidth={1}
       borderColor="$borderColor">
