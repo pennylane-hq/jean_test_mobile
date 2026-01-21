@@ -88,7 +88,7 @@ const MyComponent = () => {
     /**
      * Get the first 50 invoices of customer 3
      */
-    api
+    apiClient
       .getInvoices({
         page: 1,
         per_page: 50,
